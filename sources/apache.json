@@ -1,0 +1,9 @@
+{
+  "hostname": "httpd.apache.org",
+  "headers": {
+    "Accept": "*/*",
+    "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
+  },
+  "path": "/security_report.html",
+  "method": "GET"
+}

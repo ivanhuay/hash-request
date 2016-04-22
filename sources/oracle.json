@@ -1,0 +1,9 @@
+{
+  "hostname": "www.oracle.com",
+  "headers": {
+    "Accept": "*/*",
+    "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
+  },
+  "path": "/technetwork/topics/security/whatsnew/index.html",
+  "method": "GET"
+}
