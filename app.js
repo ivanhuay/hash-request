@@ -3,9 +3,22 @@ var http = require("http"),
   crypto = require("crypto"),
   exec = require('child_process').exec,
   _responseJSON = [];
-_requestPending = 0;
 
 
+
+var jsonRequest = function(url) {
+  var parseUrl = url.replace("http://", "").replace("https://").split("/");
+  var hostname = parseUrl.shift();
+  return {
+    "hostname": hostname,
+    "headers": {
+      "Accept": "*/*",
+      "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
+    },
+    "path": "/" + parseUrl.join("/"),
+    "method": "GET"
+  };
+};
 var returnMd5 = function(body) {
   var md5Sum = crypto.createHash("md5");
   md5Sum.update(body);
@@ -13,40 +26,28 @@ var returnMd5 = function(body) {
   return hash;
 };
 
-var httpCallback = function(jsonName) {
-  return function(resp) {
-    var body = "";
-    var name = jsonName;
+function getHashUrl(url, callback) {
+  var body = "";
+  var req = http.request(jsonRequest(url), function(resp) {
     resp.on("data", function(data) {
       body += data;
     });
-    resp.on("end", function() {
-      _responseJSON[name] = returnMd5(body);
-      console.log(name+": "+_responseJSON[name]);
+    resp.on('close', function() {
+      console.log("\n\nClose received!");
     });
-  };
-};
-
-
-function readFiles(dirname, onFileContent, onError) {
-  fs.readdir(dirname, function(err, filenames) {
-    if (err) {
-      onError(err);
-      return;
-    }
-    filenames.forEach(function(filename, index) {
-      fs.readFile(dirname + "/" + filename, 'utf-8', function(err, content) {
-        if (err) {
-          onError(err);
-          return;
-        }
-        _requestPending++;
-        onFileContent(filename, content);
+    resp.on("end", function() {
+      callback({
+        body: returnMd5(body),
+        statusCode: resp.statusCode,
+        headers: resp.headers
       });
     });
   });
+
+  req.on('error', function(e) {
+    console.log('problem with request: ' + e.message);
+  });
+  req.end();
 }
 
-readFiles(__dirname + "/sources", function(filename, content) {
-  http.get(JSON.parse(content), httpCallback(filename.replace(".json", "")));
-}, console.log);
+exports.getHash = getHashUrl;
