@@ -1,10 +1,6 @@
 var http = require("http"),
   fs = require("fs"),
-  crypto = require("crypto"),
-  exec = require('child_process').exec,
-  _responseJSON = [];
-
-
+  crypto = require("crypto");
 
 var jsonRequest = function(url) {
   var parseUrl = url.replace("http://", "").replace("https://").split("/");
