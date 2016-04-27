@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^0.20.0",
     "crypto": "0.0.3"
   },
   "devDependencies": {

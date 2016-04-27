@@ -1,6 +1,7 @@
 var http = require("http"),
   fs = require("fs"),
-  crypto = require("crypto");
+  crypto = require("crypto"),
+  cheerio = require("cheerio");
 
 var jsonRequest = function(url) {
   var parseUrl = url.replace("http://", "").replace("https://").split("/");
@@ -32,8 +33,10 @@ function getHashUrl(url, callback) {
       console.log("\n\nClose received!");
     });
     resp.on("end", function() {
+      var $ = cheerio.load(body);
       callback({
-        body: returnMd5(body),
+        body: returnMd5($("body").html()),
+        head: returnMd5($("head").html()),
         statusCode: resp.statusCode,
         headers: resp.headers
       });

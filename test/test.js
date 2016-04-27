@@ -3,6 +3,7 @@ var hashRequest = require("..");
 
 exports['test basic'] = function(assert, done) {
     hashRequest.getHash("httpd.apache.org/security_report.html",function(response){
+      console.log(JSON.stringify(response));
       assert.equal(response.statusCode, 200, 'error in status code');
     });
 };
