@@ -1,10 +1,11 @@
 var http = require("http"),
+  https = require("https"),
   fs = require("fs"),
   crypto = require("crypto"),
   cheerio = require("cheerio");
 
 var jsonRequest = function(url) {
-  var parseUrl = url.replace("http://", "").replace("https://").split("/");
+  var parseUrl = url.replace("http://", "").replace("https://","").split("/");
   var hostname = parseUrl.shift();
   return {
     "hostname": hostname,
@@ -25,7 +26,8 @@ var returnMd5 = function(body) {
 
 function getHashUrl(url, callback) {
   var body = "";
-  var req = http.request(jsonRequest(url), function(resp) {
+  var requestHandler = (/https/.test(url)) ? https : http;
+  var req = requestHandler.request(jsonRequest(url), function(resp) {
     resp.on("data", function(data) {
       body += data;
     });

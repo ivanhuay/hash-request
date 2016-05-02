@@ -1,11 +1,18 @@
-var assert = require('assert');
 var hashRequest = require("..");
 
-exports['test basic'] = function(assert, done) {
-    hashRequest.getHash("httpd.apache.org/security_report.html",function(response){
-      console.log(JSON.stringify(response));
-      assert.equal(response.statusCode, 200, 'error in status code');
+describe("hash http request", function() {
+    describe("simple http request", function() {
+        it("check http response status", function() {
+            hashRequest.getHash("httpd.apache.org/security_report.html", function(response) {
+                expected(200).to.equal(response.statusCode);
+            });
+        });
     });
-};
-
-if (module == require.main) require('test').run(exports);
+    describe("https request", function() {
+        it("check https response status", function() {
+            hashRequest.getHash("https://github.com/", function(response) {
+                expected(200).to.equal(response.statusCode);
+            });
+        });
+    });
+});
