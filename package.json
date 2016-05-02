@@ -1,6 +1,6 @@
 {
   "name": "hash-request",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Get hash html for check changes",
   "main": "app.js",
   "scripts": {
@@ -11,6 +11,11 @@
   "dependencies": {
     "cheerio": "^0.20.0",
     "crypto": "0.0.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ivanhuay/hash-request",
+    "web": "https://github.com/ivanhuay/hash-request"
   },
   "devDependencies": {
     "chai": "^3.5.0",
