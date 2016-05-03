@@ -15,4 +15,12 @@ describe("hash http request", function() {
             });
         });
     });
+    describe("status and content with custom selector", function() {
+        it("get status and not null selector", function() {
+            hashRequest.getHash("httpd.apache.org/security_report.html", "h1", function(response) {
+                expected(200).to.equal(response.statusCode);
+                expected(null).not.to.equal(response.selector);
+            });
+        });
+    });
 });
