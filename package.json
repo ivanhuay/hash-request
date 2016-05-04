@@ -1,12 +1,17 @@
 {
   "name": "hash-request",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Get hash html for check changes",
   "main": "app.js",
   "scripts": {
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
-  "author": "",
+  "author": "Iván Huayraña - percho <ivanhuay@gmail.com>",
+  "keywords": [
+    "hash",
+    "request",
+    "check updates"
+  ],
   "license": "MIT",
   "dependencies": {
     "cheerio": "^0.20.0",
