@@ -4,19 +4,18 @@ var http = require("http"),
     crypto = require("crypto"),
     cheerio = require("cheerio");
 
-var jsonRequest = function(url) {
-    var parseUrl = url.replace("http://", "").replace("https://", "").split("/");
-    var hostname = parseUrl.shift();
-    return {
-        "hostname": hostname,
-        "headers": {
-            "Accept": "*/*",
-            "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
-        },
-        "path": "/" + parseUrl.join("/"),
-        "method": "GET"
-    };
+var joinJson = function(firstobj, secondobj) {
+    if (typeof firstobj == "undefined") firstobj = {};
+    for (var i in secondobj) {
+        if (typeof secondobj[i] == "object") {
+            firstobj[i] = joinJson(firstobj[i], secondobj[i]);
+        } else {
+            firstobj[i] = secondobj[i];
+        }
+    }
+    return firstobj;
 };
+
 var returnMd5 = function(plainText) {
     var md5Sum = crypto.createHash("md5");
     md5Sum.update(plainText);
@@ -24,7 +23,28 @@ var returnMd5 = function(plainText) {
     return hash;
 };
 
+var jsonRequest = function(url, headers) {
+    var parseUrl = url.replace("http://", "").replace("https://", "").split("/");
+    var hostname = parseUrl.shift();
+    var default_headers = {
+        "Accept": "*/*",
+        "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
+    };
+    return {
+        "hostname": hostname,
+        "headers": joinJson(default_headers,headers),
+        "path": "/" + parseUrl.join("/"),
+        "method": "GET"
+    };
+};
+
 var getHashUrl = function(url, selector, callback, index) {
+    var config = {
+        selector: selector,
+        headers: {},
+        callback: function() {}
+    };
+
     if (url instanceof Array) {
         for (var i in url) {
             getHashUrl(url[i], selector, callback, i);
@@ -32,14 +52,20 @@ var getHashUrl = function(url, selector, callback, index) {
         return;
     }
 
-    if (typeof selector == "function") {
-        callback = selector;
-        selector = null;
+    switch (typeof selector) {
+        case "function":
+            config.callback = selector;
+            config.selector = null;
+            break;
+        case "object":
+            config = joinJson(config, selector);
+            break;
+        default:
     }
 
     var body = "",
         requestHandler = (/https/.test(url)) ? https : http,
-        req = requestHandler.request(jsonRequest(url), function(resp) {
+        req = requestHandler.request(jsonRequest(url, config.headers), function(resp) {
             resp.on("data", function(data) {
                 body += data;
             });
@@ -54,9 +80,9 @@ var getHashUrl = function(url, selector, callback, index) {
                     statusCode: resp.statusCode,
                     headers: resp.headers
                 };
-                if(typeof index !== "undefined") response.index = index;
-                if (selector !== null) response.selector = returnMd5($(selector).html());
-                callback(response);
+                if (typeof index !== "undefined") response.index = index;
+                if (config.selector !== null) response.selector = returnMd5($(config.selector).html());
+                config.callback(response);
             });
         });
 

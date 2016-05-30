@@ -105,3 +105,18 @@ hashRequest.getHash(["httpd.apache.org/security_report.html","https://www.npmjs.
     }
 }
 ```
+
+### custom headers
+
+format:
+
+	hashRequest.getHash([url],data_json[json],callback);
+
+
+```javascript
+var hashRequest = require('hash-request');
+
+hashRequest.getHash(["httpd.apache.org/security_report.html","https://www.npmjs.com"],{headers:"Accept":"*",selector:"h1"},function(response){
+    console.log(JSON.stringify(response));
+});
+```

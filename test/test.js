@@ -36,3 +36,16 @@ describe("multiple url hash", function() {
         });
     });
 });
+
+
+describe("custom headers test", function() {
+    describe("simple test with headers", function() {
+        it("check status with custom header", function() {
+            hashRequest.getHash("httpd.apache.org/security_report.html", {
+                Accept: "*"
+            }, function(response) {
+                expected(200).to.equal(response.statusCode);
+            });
+        });
+    });
+});
