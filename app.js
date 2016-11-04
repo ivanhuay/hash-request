@@ -25,6 +25,7 @@ var jsonRequest = function(url) {
     };
 };
 var returnMd5 = function(plainText) {
+    if (!plainText) plainText = "";
     var md5Sum = crypto.createHash("md5");
     md5Sum.update(plainText);
     var hash = md5Sum.digest("hex");
