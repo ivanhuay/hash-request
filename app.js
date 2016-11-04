@@ -5,7 +5,7 @@ var http = require("http"),
     cheerio = require("cheerio");
 
 var jsonRequest = function(url) {
-    var parseUrl = url.replace("http://", "").replace("https://", "").split("/");
+    var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
     var hostname = parseUrl.shift();
     return {
         "hostname": hostname,
@@ -53,7 +53,7 @@ var getHashUrl = function(url, selector) {
                         head: returnMd5($("head").html()),
                         statusCode: resp.statusCode,
                         headers: resp.headers,
-                        url:url
+                        url: url
                     };
                     if (selector !== null) response.selector = returnMd5($(selector).html());
                     resolve(response);
