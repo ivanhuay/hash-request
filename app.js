@@ -7,6 +7,12 @@ var http = require("http"),
 var jsonRequest = function(url) {
     var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
     var hostname = parseUrl.shift();
+    var port = 80;
+    if (/:[0-9]+/.test(hostname)) {
+        var sections = hostname.split(":");
+        hostname = sections[0];
+        port = sections[1];
+    }
     return {
         "hostname": hostname,
         "headers": {
@@ -14,7 +20,8 @@ var jsonRequest = function(url) {
             "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
         },
         "path": "/" + parseUrl.join("/"),
-        "method": "GET"
+        "method": "GET",
+        "port": port
     };
 };
 var returnMd5 = function(plainText) {
@@ -38,7 +45,7 @@ var getHashUrl = function(url, selector) {
     }
     return new Promise(function(resolve, reject) {
         var body = "",
-            requestHandler = (/https/.test(url)) ? https : http,
+            requestHandler = (/^https/.test(url)) ? https : http,
             req = requestHandler.request(jsonRequest(url), function(resp) {
                 resp.on("data", function(data) {
                     body += data;
