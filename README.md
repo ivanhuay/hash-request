@@ -116,4 +116,5 @@ hashRequest.getHash(["httpd.apache.org/security_report.html","https://www.npmjs.
 
 ## updates:
 
-* vo.1.0 - Promises and url in json response added.
+* v0.1.0 - Promises and url in json response added.
+* v0.2.0 - Config, handle redirects, optional html reponse aditional to hash.

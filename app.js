@@ -3,7 +3,7 @@ var http = require("http"),
     fs = require("fs"),
     crypto = require("crypto"),
     cheerio = require("cheerio");
-
+//TODO:better name for all functions
 var jsonRequest = function(url) {
     var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
     var hostname = parseUrl.shift();
@@ -31,7 +31,7 @@ var returnMd5 = function(plainText) {
     var hash = md5Sum.digest("hex");
     return hash;
 };
-
+//TODO:change selector to options
 var getHashUrl = function(url, selector) {
     if (url instanceof Array) {
         var hashedRequest = url.map(function(current_url) {
@@ -47,6 +47,7 @@ var getHashUrl = function(url, selector) {
     return new Promise(function(resolve, reject) {
         var body = "",
             requestHandler = (/^https/.test(url)) ? https : http,
+            //TODO:handle redirects
             req = requestHandler.request(jsonRequest(url), function(resp) {
                 resp.on("data", function(data) {
                     body += data;
@@ -56,6 +57,7 @@ var getHashUrl = function(url, selector) {
                 });
                 resp.on("end", function() {
                     var $ = cheerio.load(body);
+                    //TODO:add optional return html
                     var response = {
                         body: returnMd5($("body").html()),
                         head: returnMd5($("head").html()),

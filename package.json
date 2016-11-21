@@ -1,6 +1,6 @@
 {
   "name": "hash-request",
-  "version": "0.1.5",
+  "version": "0.2.0",
   "description": "Get hash html for check changes",
   "main": "app.js",
   "scripts": {
