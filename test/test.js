@@ -42,12 +42,12 @@ describe("hash http request", function() {
 
 describe("multiple url hash", function() {
     describe("http simple multiple request", function() {
-        this.timeout(5000);
+        this.timeout(10000);
         it("check status in multiple request", function(done) {
             var hashes = {
                 "httpd.apache.org/security_report.html": "73136c4a0fa91b56483b8ed103fe1876",
-                "https://www.npmjs.com": "eb93cfa137cb67adad76ec7dd0fb5317",
-                "https://nodejs.org/en/": "c2ad3f129b2af05d2ea389030d071add",
+                "https://www.npmjs.com": "a7d9ff734e0dd313abe611be06085a53",
+                "https://nodejs.org/en/": "80a50a1095fcb8feddfcda879f4d5781",
                 "https://nodejs.org": "f2c0c63aed3f8a71d47eec78e697f483"
             };
             hashRequest.getHash(["httpd.apache.org/security_report.html", "https://www.npmjs.com", "https://nodejs.org"])
@@ -72,7 +72,7 @@ describe("multiple url hash", function() {
 describe("Redirect handle", function() {
     describe("http to https redirect", function() {
         it("check response status", function(done) {
-            hashRequest.getHash("https://ivanhuay.com.ar")
+            hashRequest.getHash("http://ivanhuay.com.ar")
                 .then(function(response) {
                     expect(200).to.equal(response.statusCode);
                     done();
