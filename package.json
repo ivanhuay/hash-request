@@ -1,29 +1,29 @@
 {
-  "name": "hash-request",
-  "version": "0.1.5",
-  "description": "Get hash html for check changes",
-  "main": "app.js",
-  "scripts": {
-    "test": "./node_modules/.bin/mocha --reporter spec"
-  },
-  "author": "Iván Huayraña - percho <ivanhuay@gmail.com>",
-  "keywords": [
-    "hash",
-    "request",
-    "check updates"
-  ],
-  "license": "MIT",
-  "dependencies": {
-    "cheerio": "^0.20.0",
-    "crypto": "0.0.3"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/ivanhuay/hash-request",
-    "web": "https://github.com/ivanhuay/hash-request"
-  },
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "mocha": "^2.4.5"
-  }
+    "name": "hash-request",
+    "version": "0.2.0",
+    "description": "Get hash html for check changes",
+    "main": "app.js",
+    "scripts": {
+        "test": "./node_modules/.bin/mocha --timeout 10000 --reporter spec"
+    },
+    "author": "Iván Huayraña - percho <ivanhuay@gmail.com>",
+    "keywords": [
+        "hash",
+        "request",
+        "check updates"
+    ],
+    "license": "MIT",
+    "dependencies": {
+        "cheerio": "^0.20.0",
+        "crypto": "0.0.3"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/ivanhuay/hash-request",
+        "web": "https://github.com/ivanhuay/hash-request"
+    },
+    "devDependencies": {
+        "chai": "^3.5.0",
+        "mocha": "^2.5.3"
+    }
 }

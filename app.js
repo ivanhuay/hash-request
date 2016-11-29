@@ -4,10 +4,14 @@ var http = require("http"),
     crypto = require("crypto"),
     cheerio = require("cheerio");
 
-var jsonRequest = function(url) {
+var getConfigJSON = function(url) {
+
+    var port = 80;
+    if (/https/.test(url)) {
+        port = 443;
+    }
     var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
     var hostname = parseUrl.shift();
-    var port = 80;
     if (/:[0-9]+/.test(hostname)) {
         var sections = hostname.split(":");
         hostname = sections[0];
@@ -24,49 +28,72 @@ var jsonRequest = function(url) {
         "port": port
     };
 };
-var returnMd5 = function(plainText) {
+var getMd5 = function(plainText) {
     if (!plainText) plainText = "";
     var md5Sum = crypto.createHash("md5");
     md5Sum.update(plainText);
     var hash = md5Sum.digest("hex");
     return hash;
 };
-
-var getHashUrl = function(url, selector) {
+var getHashUrl = function(url, $options) {
+    var options = {
+        html_response: false,
+        handle_redirect: true,
+        selector: null
+    };
     if (url instanceof Array) {
         var hashedRequest = url.map(function(current_url) {
-            return getHashUrl(current_url, selector);
+            return getHashUrl(current_url, $options);
         });
         return Promise.all(hashedRequest);
     }
-
-    if (typeof selector == "function") {
-        callback = selector;
-        selector = null;
+    if (typeof $options == "string") {
+        options.selector = $options;
+    } else if (typeof $options == "object") {
+        for (var key in $options) {
+            options[key] = $options[key];
+        }
     }
+
     return new Promise(function(resolve, reject) {
-        var body = "",
-            requestHandler = (/^https/.test(url)) ? https : http,
-            req = requestHandler.request(jsonRequest(url), function(resp) {
-                resp.on("data", function(data) {
-                    body += data;
-                });
-                resp.on('close', function() {
-                    console.log("\n\nClose received!");
-                });
-                resp.on("end", function() {
+
+        var body = "";
+        var requestHandler = (/^https/.test(url)) ? https : http;
+        //TODO:handle redirects
+        var req = requestHandler.request(getConfigJSON(url), function(resp) {
+            resp.on("data", function(data) {
+                body += data;
+            });
+            resp.on('close', function() {
+                console.log("\n\nClose received!");
+            });
+            resp.on("end", function() {
+                if (options.handle_redirect && resp.statusCode >= 300 && resp.statusCode < 400 && resp.headers.location) {
+                    getHashUrl(resp.headers.location, $options)
+                        .then(resolve)
+                        .catch(reject);
+                } else {
                     var $ = cheerio.load(body);
                     var response = {
-                        body: returnMd5($("body").html()),
-                        head: returnMd5($("head").html()),
+                        body: getMd5($("body").html()),
+                        head: getMd5($("head").html()),
                         statusCode: resp.statusCode,
                         headers: resp.headers,
                         url: url
                     };
-                    if (selector !== null) response.selector = returnMd5($(selector).html());
+                    if (options.selector !== null) response.selector = getMd5($(options.selector).html());
+                    if (options.html_response) {
+                        response.html = {
+                            body: $("body").html(),
+                            head: $("head").html(),
+                            all: $.html()
+                        };
+                        if (options.selector !== null) response.html.selector = $(options.selector).html();
+                    }
                     resolve(response);
-                });
+                }
             });
+        });
 
         req.on('error', function(e) {
             console.error('problem with request: ' + e.message);
