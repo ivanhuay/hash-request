@@ -7,7 +7,7 @@ var http = require("http"),
 var getConfigJSON = function(url) {
 
     var port = 80;
-    if (/https/.test(url)) {
+    if (/^https/.test(url)) {
         port = 443;
     }
     var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
