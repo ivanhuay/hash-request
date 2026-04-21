@@ -1,31 +1,68 @@
 {
-    "name": "hash-request",
-    "version": "0.3.0",
-    "description": "Get hash html for check changes",
-    "main": "app.js",
-    "engines": {
-        "node": ">=14"
-    },
-    "scripts": {
-        "test": "./node_modules/.bin/mocha --timeout 10000 --reporter spec"
-    },
-    "author": "Iván Huayraña - percho <ivanhuay@gmail.com>",
-    "keywords": [
-        "hash",
-        "request",
-        "check updates"
-    ],
-    "license": "MIT",
-    "dependencies": {
-        "cheerio": "^1.0.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/ivanhuay/hash-request",
-        "web": "https://github.com/ivanhuay/hash-request"
-    },
-    "devDependencies": {
-        "chai": "^3.5.0",
-        "mocha": "^2.5.3"
+  "name": "hash-request",
+  "version": "0.3.0",
+  "description": "Get hash html for check changes",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
     }
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --clean",
+    "prepare": "npm run build && husky",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"*.json\" \"*.md\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"*.json\" \"*.md\"",
+    "test": "npm run build && ./node_modules/.bin/mocha --timeout 10000 --reporter spec"
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  },
+  "author": "Iván Huayraña - percho <ivanhuay@gmail.com>",
+  "keywords": [
+    "hash",
+    "request",
+    "check updates"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cheerio": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ivanhuay/hash-request",
+    "web": "https://github.com/ivanhuay/hash-request"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.0",
+    "chai": "^3.5.0",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "mocha": "^2.5.3",
+    "prettier": "^3.8.3",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3"
+  }
 }

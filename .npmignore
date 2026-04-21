@@ -1,1 +1,5 @@
+src/
 test/
+tsconfig.json
+*.ts
+!dist/

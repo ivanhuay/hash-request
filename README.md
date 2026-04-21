@@ -4,7 +4,7 @@ Get hash html for check changes.
 
 ### installation
 
-	npm install hash-request
+    npm install hash-request
 
 ### Usage
 
@@ -13,13 +13,15 @@ hash-request use promises so you can use the .then() and .catch() for manage res
 ```javascript
 var hashRequest = require('hash-request');
 
-hashRequest.getHash("httpd.apache.org/security_report.html").then(function(response){
+hashRequest
+  .getHash('httpd.apache.org/security_report.html')
+  .then(function (response) {
     console.log(JSON.stringify(response));
-}).catch(function(err){
-	console.error(err);
-});
+  })
+  .catch(function (err) {
+    console.error(err);
+  });
 ```
-
 
 #### response:
 
@@ -42,21 +44,23 @@ hashRequest.getHash("httpd.apache.org/security_report.html").then(function(respo
       }
   }
 ```
+
 ### custom selector
 
 format:
 
-	hashRequest.getHash(url,selector);
+    hashRequest.getHash(url,selector);
 
 ```javascript
 var hashRequest = require('hash-request');
 
-hashRequest.getHash("httpd.apache.org/security_report.html","h1").then(function(response){
-    console.log(JSON.stringify(response));
+hashRequest.getHash('httpd.apache.org/security_report.html', 'h1').then(function (response) {
+  console.log(JSON.stringify(response));
 });
 ```
 
 #### response:
+
 ```javascript
 {
 	"body":"912949687a6fe75350bf36928cf64b67",
@@ -82,17 +86,20 @@ hashRequest.getHash("httpd.apache.org/security_report.html","h1").then(function(
 
 format:
 
-	hashRequest.getHash([url],selector);
+    hashRequest.getHash([url],selector);
 
 ```javascript
 var hashRequest = require('hash-request');
 
-hashRequest.getHash(["httpd.apache.org/security_report.html","https://www.npmjs.com"],"h1").then(function(response){
+hashRequest
+  .getHash(['httpd.apache.org/security_report.html', 'https://www.npmjs.com'], 'h1')
+  .then(function (response) {
     console.log(JSON.stringify(response));
-});
+  });
 ```
 
 #### response:
+
 ```javascript
 {
 	"body":"912949687a6fe75350bf36928cf64b67",
@@ -113,20 +120,24 @@ hashRequest.getHash(["httpd.apache.org/security_report.html","https://www.npmjs.
     }
 }
 ```
+
 ## new configurable options v0.2.x:
-1) handle_redirect: (default: true) Handle redirect status like 301. Con handle_redirect:false no redirege automaticamente las paginas http en https.
-2) html_response:true (default: false) Returns the json response.html with all selectors and the complete dom as html strings.
+
+1. handle_redirect: (default: true) Handle redirect status like 301. Con handle_redirect:false no redirege automaticamente las paginas http en https.
+2. html_response:true (default: false) Returns the json response.html with all selectors and the complete dom as html strings.
 
 ## handle_redirect:
 
 ```javascript
 var hashRequest = require('hash-request');
 
-hashRequest.getHash("http://www.npmjs.com").then(function(response){
-    console.log(JSON.stringify(response));
+hashRequest.getHash('http://www.npmjs.com').then(function (response) {
+  console.log(JSON.stringify(response));
 });
 ```
+
 ### response: the https repose by redirect
+
 ```javascript
 { body: '80a50a1095fcb8feddfcda879f4d5781',
   head: 'feceba948baefa9763ebc9b769c0b515',
@@ -146,16 +157,19 @@ hashRequest.getHash("http://www.npmjs.com").then(function(response){
   url: 'https://nodejs.org/en/' }
 
 ```
+
 ## html_response:
 
 ```javascript
 var hashRequest = require('hash-request');
 
-hashRequest.getHash("http://localhost/example",{html_response:true}).then(function(response){
-    console.log(JSON.stringify(response));
+hashRequest.getHash('http://localhost/example', { html_response: true }).then(function (response) {
+  console.log(JSON.stringify(response));
 });
 ```
+
 ### response: html response in response.html
+
 ```javascript
 { body: '80a50a1095fcb8feddfcda879f4d5781',
   head: 'feceba948baefa9763ebc9b769c0b515',
@@ -175,7 +189,7 @@ hashRequest.getHash("http://localhost/example",{html_response:true}).then(functi
 
 ## updates:
 
-* v0.1.0 - Promises and url in json response added.
-* v0.2.0 - Config, handle redirects, optional html reponse aditional to hash.
+- v0.1.0 - Promises and url in json response added.
+- v0.2.0 - Config, handle redirects, optional html reponse aditional to hash.
 
 hash-request: Improving every week!

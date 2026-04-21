@@ -12,32 +12,37 @@
 ## Analysis: problems to fix
 
 ### Dependencies
-| Issue | Fix |
-|---|---|
+
+| Issue                              | Fix                    |
+| ---------------------------------- | ---------------------- |
 | `crypto: "0.0.3"` npm shim in deps | Remove — Node built-in |
-| `cheerio ^0.20.0` | Upgrade to `^1.0` |
-| `mocha ^2.5.3` / `chai ^3.5.0` | Replace with Vitest |
+| `cheerio ^0.20.0`                  | Upgrade to `^1.0`      |
+| `mocha ^2.5.3` / `chai ^3.5.0`     | Replace with Vitest    |
 
 ### Core code (`app.js`)
-| Issue | Location | Fix |
-|---|---|---|
-| Manual URL parsing with regex | `app.js:13` | Use `new URL()` |
-| `var` everywhere | all | `const`/`let` |
-| Raw Promise + callback style | `app.js:58` | `async/await` |
-| No request timeout | `app.js:63` | Add `timeout` option (default 10s) |
-| Debug `console.log` in prod | `app.js:68` | Remove |
-| `http`/`https` manual module switch | `app.js:61` | Use `fetch` (Node 18+) |
+
+| Issue                               | Location    | Fix                                |
+| ----------------------------------- | ----------- | ---------------------------------- |
+| Manual URL parsing with regex       | `app.js:13` | Use `new URL()`                    |
+| `var` everywhere                    | all         | `const`/`let`                      |
+| Raw Promise + callback style        | `app.js:58` | `async/await`                      |
+| No request timeout                  | `app.js:63` | Add `timeout` option (default 10s) |
+| Debug `console.log` in prod         | `app.js:68` | Remove                             |
+| `http`/`https` manual module switch | `app.js:61` | Use `fetch` (Node 18+)             |
 
 ### Tests (`test/test.js`)
-| Issue | Fix |
-|---|---|
-| Hits real external URLs | Replace with local mock server |
+
+| Issue                                | Fix                                         |
+| ------------------------------------ | ------------------------------------------- |
+| Hits real external URLs              | Replace with local mock server              |
 | Hardcoded hash values for live sites | Hashes change when sites update — mock only |
-| `done` callback style | `async/await` |
-| No edge case coverage | Add: timeout, 404, redirect loop, bad URL |
+| `done` callback style                | `async/await`                               |
+| No edge case coverage                | Add: timeout, 404, redirect loop, bad URL   |
 
 ### TypeScript benefits
+
 Migrating to TS gives:
+
 - `HashOptions` interface → IDE autocomplete, no silent typos on option keys
 - `HashResponse` return type → callers know exact shape
 - Compile-time catch on wrong option types (e.g. passing string to `handle_redirect`)
@@ -49,6 +54,7 @@ Migrating to TS gives:
 ## v1.0.0 Milestones
 
 ### Phase 1 — Clean core (no breaking changes)
+
 - [x] Remove `crypto` npm dep
 - [x] Upgrade `cheerio` to `^1.0`
 - [x] Replace `var` → `const`/`let`
@@ -59,22 +65,25 @@ Migrating to TS gives:
 - [ ] Use native `fetch` (Node 18+ requirement) — drop `http`/`https` modules — deferred: redirect manual mode needs more investigation
 
 ### Phase 2 — TypeScript migration
-- [ ] Add TypeScript + `tsconfig.json`
-- [ ] Define `HashOptions` interface
-- [ ] Define `HashResponse` type
-- [ ] Dual CJS/ESM output via `tsup` or `tsc`
-- [ ] Type declarations shipped in package (`"types"` field in `package.json`)
+
+- [x] Add TypeScript + `tsconfig.json`
+- [x] Define `HashOptions` interface
+- [x] Define `HashResponse` type
+- [x] Dual CJS/ESM output via `tsup`
+- [x] Type declarations shipped in package (`"types"` field in `package.json`)
 
 ### Phase 3 — Linting & formatting
-- [ ] Add ESLint with `@typescript-eslint` rules
-- [ ] Add Prettier for formatting
-- [ ] `.eslintrc` + `.prettierrc` config files
-- [ ] `lint` and `format` scripts in `package.json`
-- [ ] `lint:fix` script for auto-fixable rules
-- [ ] Pre-commit hook via `husky` + `lint-staged` — lint/format on staged files only
-- [ ] CI fails on lint errors
+
+- [x] Add ESLint with `@typescript-eslint` rules
+- [x] Add Prettier for formatting
+- [x] `eslint.config.mjs` + `.prettierrc` config files
+- [x] `lint` and `format` scripts in `package.json`
+- [x] `lint:fix` script for auto-fixable rules
+- [x] Pre-commit hook via `husky` + `lint-staged` — lint/format on staged files only
+- [ ] CI fails on lint errors — needs CI config (Phase 6)
 
 ### Phase 4 — Tests overhaul
+
 - [ ] Replace `mocha`/`chai` with Vitest
 - [ ] All tests use local mock server — zero external network calls
 - [ ] `async/await` test style
@@ -82,12 +91,14 @@ Migrating to TS gives:
 - [ ] Coverage report
 
 ### Phase 5 — Headless mode (optional, opt-in)
+
 - [ ] Add `{ headless: true }` option using Puppeteer
 - [ ] Peer dependency — not bundled by default
 - [ ] Same `HashResponse` shape as HTTP mode
 - [ ] Targets: SPAs, JS-rendered content (React/Vue/Angular sites)
 
 ### Phase 6 — Packaging & docs
+
 - [ ] Update `README.md` with new API + TypeScript examples
 - [ ] Publish `1.0.0` to npm
 - [ ] Add `CHANGELOG.md`
@@ -96,12 +107,12 @@ Migrating to TS gives:
 
 ## Breaking changes in v1.0.0
 
-| Change | Reason |
-|---|---|
-| Node ≥ 18 required | Native `fetch` |
-| `crypto` npm dep removed | Was wrong dep, Node built-in used instead |
-| Option key `html_response` unchanged | Keep backward compat |
-| Option key `handle_redirect` unchanged | Keep backward compat |
+| Change                                 | Reason                                    |
+| -------------------------------------- | ----------------------------------------- |
+| Node ≥ 18 required                     | Native `fetch`                            |
+| `crypto` npm dep removed               | Was wrong dep, Node built-in used instead |
+| Option key `html_response` unchanged   | Keep backward compat                      |
+| Option key `handle_redirect` unchanged | Keep backward compat                      |
 
 ---
 
