@@ -1,107 +1,100 @@
-var http = require("http"),
-    https = require("https"),
-    fs = require("fs"),
-    crypto = require("crypto"),
-    cheerio = require("cheerio");
+const http = require('http');
+const https = require('https');
+const crypto = require('crypto');
+const cheerio = require('cheerio');
 
-var getConfigJSON = function(url) {
-
-    var port = 80;
-    if (/https/.test(url)) {
-        port = 443;
-    }
-    var parseUrl = url.replace(/^http:\/\//, "").replace(/^https:\/\//, "").split("/");
-    var hostname = parseUrl.shift();
-    if (/:[0-9]+/.test(hostname)) {
-        var sections = hostname.split(":");
-        hostname = sections[0];
-        port = sections[1];
-    }
-    return {
-        "hostname": hostname,
-        "headers": {
-            "Accept": "*/*",
-            "User-Agent": "curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3"
-        },
-        "path": "/" + parseUrl.join("/"),
-        "method": "GET",
-        "port": port
-    };
+const DEFAULT_OPTIONS = {
+  html_response: false,
+  handle_redirect: true,
+  selector: null,
+  timeout: 10000,
 };
-var getMd5 = function(plainText) {
-    if (!plainText) plainText = "";
-    var md5Sum = crypto.createHash("md5");
-    md5Sum.update(plainText);
-    var hash = md5Sum.digest("hex");
-    return hash;
+
+const normalizeUrl = (rawUrl) => {
+  if (!/^https?:\/\//.test(rawUrl)) return `http://${rawUrl}`;
+  return rawUrl;
 };
-var getHashUrl = function(url, $options) {
-    var options = {
-        html_response: false,
-        handle_redirect: true,
-        selector: null
+
+const getMd5 = (text = '') =>
+  crypto.createHash('md5').update(text).digest('hex');
+
+const fetchUrl = (url, timeout) =>
+  new Promise((resolve, reject) => {
+    const parsed = new URL(url);
+    const isHttps = parsed.protocol === 'https:';
+    const requestHandler = isHttps ? https : http;
+
+    const reqOptions = {
+      hostname: parsed.hostname,
+      port: parsed.port || (isHttps ? 443 : 80),
+      path: parsed.pathname + parsed.search,
+      method: 'GET',
+      headers: {
+        Accept: '*/*',
+        'User-Agent': 'curl/7.16.3 (powerpc-apple-darwin9.0) libcurl/7.16.3',
+      },
     };
-    if (url instanceof Array) {
-        var hashedRequest = url.map(function(current_url) {
-            return getHashUrl(current_url, $options);
-        });
-        return Promise.all(hashedRequest);
-    }
-    if (typeof $options == "string") {
-        options.selector = $options;
-    } else if (typeof $options == "object") {
-        for (var key in $options) {
-            options[key] = $options[key];
-        }
-    }
 
-    return new Promise(function(resolve, reject) {
-
-        var body = "";
-        var requestHandler = (/^https/.test(url)) ? https : http;
-        //TODO:handle redirects
-        var req = requestHandler.request(getConfigJSON(url), function(resp) {
-            resp.on("data", function(data) {
-                body += data;
-            });
-            resp.on('close', function() {
-                console.log("\n\nClose received!");
-            });
-            resp.on("end", function() {
-                if (options.handle_redirect && resp.statusCode >= 300 && resp.statusCode < 400 && resp.headers.location) {
-                    getHashUrl(resp.headers.location, $options)
-                        .then(resolve)
-                        .catch(reject);
-                } else {
-                    var $ = cheerio.load(body);
-                    var response = {
-                        body: getMd5($("body").html()),
-                        head: getMd5($("head").html()),
-                        statusCode: resp.statusCode,
-                        headers: resp.headers,
-                        url: url
-                    };
-                    if (options.selector !== null) response.selector = getMd5($(options.selector).html());
-                    if (options.html_response) {
-                        response.html = {
-                            body: $("body").html(),
-                            head: $("head").html(),
-                            all: $.html()
-                        };
-                        if (options.selector !== null) response.html.selector = $(options.selector).html();
-                    }
-                    resolve(response);
-                }
-            });
-        });
-
-        req.on('error', function(e) {
-            console.error('problem with request: ' + e.message);
-            reject(e);
-        });
-        req.end();
-
+    const req = requestHandler.request(reqOptions, (res) => {
+      let body = '';
+      res.on('data', (chunk) => { body += chunk; });
+      res.on('end', () => resolve({ statusCode: res.statusCode, headers: res.headers, body }));
     });
+
+    req.setTimeout(timeout, () => {
+      req.destroy();
+      reject(new Error(`Request timeout after ${timeout}ms: ${url}`));
+    });
+
+    req.on('error', reject);
+    req.end();
+  });
+
+const getHashUrl = async (url, $options) => {
+  if (Array.isArray(url)) {
+    return Promise.all(url.map((u) => getHashUrl(u, $options)));
+  }
+
+  const options = { ...DEFAULT_OPTIONS };
+  if (typeof $options === 'string') {
+    options.selector = $options;
+  } else if ($options && typeof $options === 'object') {
+    Object.assign(options, $options);
+  }
+
+  const normalizedUrl = normalizeUrl(url);
+  const { statusCode, headers, body } = await fetchUrl(normalizedUrl, options.timeout);
+
+  if (options.handle_redirect && statusCode >= 300 && statusCode < 400 && headers.location) {
+    return getHashUrl(headers.location, $options);
+  }
+
+  const $ = cheerio.load(body);
+
+  const response = {
+    body: getMd5($('body').html()),
+    head: getMd5($('head').html()),
+    statusCode,
+    headers,
+    url,
+  };
+
+  if (options.selector !== null) {
+    response.selector = getMd5($(options.selector).html());
+  }
+
+  if (options.html_response) {
+    response.html = {
+      body: $('body').html(),
+      head: $('head').html(),
+      all: $.html(),
+    };
+    if (options.selector !== null) {
+      response.html.selector = $(options.selector).html();
+    }
+  }
+
+  return response;
 };
 
 exports.getHash = getHashUrl;
