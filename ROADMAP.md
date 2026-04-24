@@ -92,10 +92,24 @@ Migrating to TS gives:
 
 ### Phase 5 — Headless mode (optional, opt-in)
 
-- [ ] Add `{ headless: true }` option using Puppeteer
-- [ ] Peer dependency — not bundled by default
-- [ ] Same `HashResponse` shape as HTTP mode
-- [ ] Targets: SPAs, JS-rendered content (React/Vue/Angular sites)
+- [x] Add `{ headless: true }` option using Puppeteer
+- [x] Peer dependency — not bundled by default
+- [x] Same `HashResponse` shape as HTTP mode
+- [x] Targets: SPAs, JS-rendered content (React/Vue/Angular sites)
+
+### Phase 5.5 — CLI & monitoring mode
+
+- [ ] `src/cli.ts` entry point + `bin` field in `package.json`
+- [ ] `-u <url>` target URL (repeatable, max 10 targets)
+- [ ] `-f <seconds>` poll interval (default: 300s)
+- [ ] `-s <selector>` CSS selector to watch (e.g. `#showtimes`)
+- [ ] `-t <term>` word/phrase to watch — alerts on count or position change
+- [ ] `--threshold <pct>` body change threshold (10% steps, default: 100 = any change)
+  - Body text split into 10 equal chunks → 10 md5s
+  - Changed chunks / 10 = % change; alert if ≥ threshold
+- [ ] State file (`~/.hash-request-state.json`) — persist previous hashes between runs
+- [ ] System notification on alert trigger (`node-notifier`, macOS/Linux/Windows)
+- [ ] Hard limit: max 10 monitored targets per CLI instance (enforced at state file level, not in library)
 
 ### Phase 6 — Packaging & docs
 

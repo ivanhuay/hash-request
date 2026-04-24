@@ -47,6 +47,14 @@
   "dependencies": {
     "cheerio": "^1.0.0"
   },
+  "peerDependencies": {
+    "puppeteer": ">=21.0.0"
+  },
+  "peerDependenciesMeta": {
+    "puppeteer": {
+      "optional": true
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git://github.com/ivanhuay/hash-request",

@@ -8,6 +8,7 @@ export interface HashOptions {
   handle_redirect?: boolean;
   selector?: string | null;
   timeout?: number;
+  headless?: boolean;
 }
 
 export interface HashHtml {
@@ -32,6 +33,7 @@ const DEFAULT_OPTIONS: Required<HashOptions> = {
   handle_redirect: true,
   selector: null,
   timeout: 10000,
+  headless: false,
 };
 
 const normalizeUrl = (rawUrl: string): string => {
@@ -91,6 +93,56 @@ const fetchUrl = (url: string, timeout: number): Promise<FetchResult> =>
     req.end();
   });
 
+interface PuppeteerResponse {
+  status(): number;
+  headers(): Record<string, string>;
+}
+
+interface PuppeteerPage {
+  goto(
+    url: string,
+    opts?: { waitUntil?: string; timeout?: number }
+  ): Promise<PuppeteerResponse | null>;
+  content(): Promise<string>;
+}
+
+interface PuppeteerBrowser {
+  newPage(): Promise<PuppeteerPage>;
+  close(): Promise<void>;
+}
+
+interface PuppeteerModule {
+  default?: { launch(opts: object): Promise<PuppeteerBrowser> };
+  launch?: (opts: object) => Promise<PuppeteerBrowser>;
+}
+
+const fetchHeadless = async (url: string, timeout: number): Promise<FetchResult> => {
+  let mod: PuppeteerModule;
+  try {
+    mod = await import('puppeteer');
+  } catch {
+    throw new Error('puppeteer is required for headless mode: npm install puppeteer');
+  }
+
+  const launchFn = mod.default?.launch?.bind(mod.default) ?? mod.launch;
+  if (!launchFn) throw new Error('puppeteer: cannot find launch function');
+
+  const browser = await launchFn({ headless: true });
+  try {
+    const page = await browser.newPage();
+    const response = await page.goto(url, { waitUntil: 'networkidle2', timeout });
+    if (!response) throw new Error(`No response from headless fetch: ${url}`);
+    const body = await page.content();
+    return {
+      statusCode: response.status(),
+      headers: response.headers(),
+      body,
+    };
+  } finally {
+    await browser.close();
+  }
+};
+
 const resolveOptions = (raw: HashOptions | string | undefined): Required<HashOptions> => {
   const options = { ...DEFAULT_OPTIONS };
   if (typeof raw === 'string') {
@@ -124,9 +176,17 @@ const getHashSingle = async (
   }
   const options = resolveOptions(rawOptions);
   const normalizedUrl = normalizeUrl(url);
-  const { statusCode, headers, body } = await fetchUrl(normalizedUrl, options.timeout);
+  const { statusCode, headers, body } = options.headless
+    ? await fetchHeadless(normalizedUrl, options.timeout)
+    : await fetchUrl(normalizedUrl, options.timeout);
 
-  if (options.handle_redirect && statusCode >= 300 && statusCode < 400 && headers.location) {
+  if (
+    !options.headless &&
+    options.handle_redirect &&
+    statusCode >= 300 &&
+    statusCode < 400 &&
+    headers.location
+  ) {
     return getHashSingle(headers.location as string, rawOptions, redirectCount + 1);
   }
 
