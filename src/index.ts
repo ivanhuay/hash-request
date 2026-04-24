@@ -116,14 +116,18 @@ export function getHash(
 
 const getHashSingle = async (
   url: string,
-  rawOptions?: HashOptions | string
+  rawOptions?: HashOptions | string,
+  redirectCount = 0
 ): Promise<HashResponse> => {
+  if (redirectCount > 10) {
+    throw new Error(`Too many redirects: ${url}`);
+  }
   const options = resolveOptions(rawOptions);
   const normalizedUrl = normalizeUrl(url);
   const { statusCode, headers, body } = await fetchUrl(normalizedUrl, options.timeout);
 
   if (options.handle_redirect && statusCode >= 300 && statusCode < 400 && headers.location) {
-    return getHashSingle(headers.location as string, rawOptions);
+    return getHashSingle(headers.location as string, rawOptions, redirectCount + 1);
   }
 
   const $ = load(body);

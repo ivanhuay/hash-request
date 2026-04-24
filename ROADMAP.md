@@ -84,11 +84,11 @@ Migrating to TS gives:
 
 ### Phase 4 — Tests overhaul
 
-- [ ] Replace `mocha`/`chai` with Vitest
-- [ ] All tests use local mock server — zero external network calls
-- [ ] `async/await` test style
-- [ ] Add cases: timeout, 404, 301 loop guard, malformed URL, empty body, selector not found
-- [ ] Coverage report
+- [x] Replace `mocha`/`chai` with Vitest
+- [x] All tests use local mock server — zero external network calls
+- [x] `async/await` test style
+- [x] Add cases: timeout, 404, 301 loop guard, malformed URL, empty body, selector not found
+- [x] Coverage report
 
 ### Phase 5 — Headless mode (optional, opt-in)
 

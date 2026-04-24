@@ -16,7 +16,7 @@
     "dist"
   ],
   "engines": {
-    "node": ">=14"
+    "node": ">=18"
   },
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts --clean",
@@ -25,7 +25,8 @@
     "lint:fix": "eslint src --fix",
     "format": "prettier --write \"src/**/*.ts\" \"*.json\" \"*.md\"",
     "format:check": "prettier --check \"src/**/*.ts\" \"*.json\" \"*.md\"",
-    "test": "npm run build && ./node_modules/.bin/mocha --timeout 10000 --reporter spec"
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "lint-staged": {
     "src/**/*.ts": [
@@ -55,13 +56,13 @@
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
-    "chai": "^3.5.0",
+    "@vitest/coverage-v8": "^3.0.0",
     "eslint": "^9.39.4",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
-    "mocha": "^2.5.3",
     "prettier": "^3.8.3",
+    "vitest": "^3.0.0",
     "tsup": "^8.5.1",
     "typescript": "^6.0.3"
   }
